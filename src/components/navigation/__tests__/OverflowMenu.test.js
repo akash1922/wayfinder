@@ -28,10 +28,11 @@ describe('OverflowMenu', () => {
 		const button = screen.getByRole('button', { name: 'More navigation options' });
 		await user.click(button);
 
-		for (const { key, value } of mockLinks) {
-			const link = await screen.findByRole('link', { name: key });
+		const expectedNames = ['header.about', 'header.contact', 'GitHub'];
+		for (let i = 0; i < mockLinks.length; i++) {
+			const link = await screen.findByRole('link', { name: expectedNames[i] });
 			expect(link).toBeInTheDocument();
-			expect(link).toHaveAttribute('href', value);
+			expect(link).toHaveAttribute('href', mockLinks[i].value);
 		}
 		expect(button).toHaveAttribute('aria-expanded', 'true');
 	});
@@ -54,12 +55,12 @@ describe('OverflowMenu', () => {
 		const button = screen.getByRole('button', { name: 'More navigation options' });
 		await user.click(button);
 
-		const firstLink = await screen.findByRole('link', { name: 'About' });
+		const firstLink = await screen.findByRole('link', { name: 'header.about' });
 		firstLink.addEventListener('click', (e) => e.preventDefault(), { once: true });
 		await user.click(firstLink);
 
 		await waitFor(() => {
-			expect(screen.queryByRole('link', { name: 'About' })).not.toBeInTheDocument();
+			expect(screen.queryByRole('link', { name: 'header.about' })).not.toBeInTheDocument();
 		});
 		expect(button).toHaveAttribute('aria-expanded', 'false');
 	});
@@ -72,12 +73,12 @@ describe('OverflowMenu', () => {
 		await user.click(button);
 
 		expect(button).toHaveAttribute('aria-expanded', 'true');
-		expect(await screen.findByRole('link', { name: 'About' })).toBeInTheDocument();
+		expect(await screen.findByRole('link', { name: 'header.about' })).toBeInTheDocument();
 
 		await user.click(document.body);
 
 		await waitFor(() => {
-			expect(screen.queryByRole('link', { name: 'About' })).not.toBeInTheDocument();
+			expect(screen.queryByRole('link', { name: 'header.about' })).not.toBeInTheDocument();
 		});
 		expect(button).toHaveAttribute('aria-expanded', 'false');
 	});
@@ -89,11 +90,11 @@ describe('OverflowMenu', () => {
 		const button = screen.getByRole('button', { name: 'More navigation options' });
 		await user.click(button);
 
-		expect(await screen.findByRole('link', { name: 'About' })).toBeInTheDocument();
+		expect(await screen.findByRole('link', { name: 'header.about' })).toBeInTheDocument();
 
 		await rerender({ links: [{ key: 'Home', value: '/' }] });
 
-		expect(screen.queryByRole('link', { name: 'About' })).not.toBeInTheDocument();
-		expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+		expect(screen.queryByRole('link', { name: 'header.about' })).not.toBeInTheDocument();
+		expect(screen.getByRole('link', { name: 'header.home' })).toBeInTheDocument();
 	});
 });

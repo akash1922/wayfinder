@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Popover from 'flowbite-svelte/Popover.svelte';
 	import { fade } from 'svelte/transition';
+	import { t } from 'svelte-i18n';
+	import { navBarLinkLabel } from '$lib/utils';
 
 	interface Props {
 		links: { key: string; value: string }[];
@@ -55,7 +57,7 @@
 			href={value}
 			onclick={closePopover}
 		>
-			{key}
+			{navBarLinkLabel(key, $t)}
 		</a>
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	{/each}

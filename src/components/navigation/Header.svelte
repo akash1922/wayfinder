@@ -6,6 +6,8 @@
 	} from '$env/static/public';
 
 	import { onMount } from 'svelte';
+	import { t, locale } from 'svelte-i18n';
+	import { navBarLinkLabel } from '$lib/utils';
 	import OverflowMenu from './OverflowMenu.svelte';
 	import LanguageSwitcher from './LanguageSwitcher/LanguageSwitcher.svelte';
 
@@ -55,10 +57,11 @@
 
 		linkWidths = [];
 		Object.entries(headerLinks).forEach(([key, value]) => {
+			const label = navBarLinkLabel(key, $t);
 			const tempDiv = document.createElement('div');
 			tempDiv.style.cssText =
 				'position:absolute;visibility:hidden;padding:0.25rem 0.5rem;font-weight:600;';
-			tempDiv.textContent = key;
+			tempDiv.textContent = label;
 			document.body.appendChild(tempDiv);
 			// Add border width (1px each side) to the measurement
 			linkWidths.push({ key, value, width: tempDiv.offsetWidth + 2 });
@@ -179,6 +182,19 @@
 		// Initial overflow check (after all measurements)
 		checkOverflow();
 
+		let lastLocale = null;
+		const unsubscribeLocale = locale.subscribe((currentLocale) => {
+			if (!lastLocale) {
+				lastLocale = currentLocale;
+				return;
+			}
+			if (currentLocale !== lastLocale) {
+				lastLocale = currentLocale;
+				measureLinkWidths();
+				checkOverflow();
+			}
+		});
+
 		const headerResizeObserver = new ResizeObserver(() => {
 			// Re-measure language switcher on resize
 			if (languageSwitcherElement) {
@@ -203,6 +219,7 @@
 		}
 
 		return () => {
+			unsubscribeLocale();
 			headerResizeObserver.disconnect();
 			languageSwitcherResizeObserver.disconnect();
 		};
@@ -251,7 +268,7 @@
 				<a
 					href={value}
 					class="block px-2 py-1 font-semibold text-surface-foreground dark:text-surface-foreground-dark"
-					>{key}</a
+					>{navBarLinkLabel(key, $t)}</a
 				>
 				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			</div>
